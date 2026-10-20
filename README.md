@@ -25,8 +25,6 @@ I'm a freelance computer tech-support specialist, and half my diagnosis calls co
 
 ## Screenshot
 
-<!-- TODO: replace with a real screenshot of the app, saved at assets/screenshot.png -->
-
 <img src="assets/screenshot.png" alt="NetPulse" width="100%">
 
 *The main view: rolling latency graph on top, speed test and reliability panels in the middle, traceroute hops and the event log below.*
