@@ -88,12 +88,12 @@
       <div class="speed-grid">
         <div class="speed-line">
           <span class="speed-num" id="spDl">—</span>
-          <span class="speed-unit">Mbps ↓</span>
+          <span class="speed-unit" id="spUnitDl">Mbps ↓</span>
           <div class="speed-bar"><div id="spDlBar" class="bar-fill"></div></div>
         </div>
         <div class="speed-line">
           <span class="speed-num" id="spUl">—</span>
-          <span class="speed-unit">Mbps ↑</span>
+          <span class="speed-unit" id="spUnitUl">Mbps ↑</span>
           <div class="speed-bar"><div id="spUlBar" class="bar-fill up"></div></div>
         </div>
       </div>
@@ -169,6 +169,15 @@
 
         <label class="check"><input id="f-resolveHosts" type="checkbox" /> Resolve hostnames (slower trace)</label>
         <label class="check"><input id="f-soundAlerts" type="checkbox" /> Sound alerts</label>
+
+        <label>Download test length (s)
+          <input id="f-speedTestSeconds" type="number" min="3" max="60" step="1" /></label>
+        <label>Upload size (MB)
+          <input id="f-speedUploadMB" type="number" min="0" max="250" step="1" /></label>
+
+        <label style="grid-column: 1 / -1;">Speed-test server
+          <input id="f-speedServer" type="text" spellcheck="false" /></label>
+        <label class="check"><input id="f-speedUnit" type="checkbox" /> Show speed in MB/s (instead of Mbps)</label>
       </div>
       <p class="hint">Changing the target or intervals applies immediately. Logs rotate when the target changes.</p>
       <div class="drawer-actions">

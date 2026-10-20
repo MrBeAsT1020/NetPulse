@@ -208,7 +208,7 @@ function registerIpc() {
     const c = config.load();
     speedTester.run({
       server: c.speedServer,
-      downloadBytes: c.speedDownloadMB * 1024 * 1024,
+      downSeconds: c.speedTestSeconds,
       uploadBytes: c.speedUploadMB * 1024 * 1024,
       pingCount: 8,
     });

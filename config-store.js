@@ -32,7 +32,9 @@ const DEFAULTS = {
   // Speed test (Cloudflare public endpoint, no API key needed)
   speedDownloadMB: 25,
   speedUploadMB: 10,
-  speedServer: 'https://speed.cloudflare.com'
+  speedServer: 'https://speed.cloudflare.com',
+  speedTestSeconds: 10,    // download window length in seconds
+  speedUnit: 'Mbps'       // 'Mbps' or 'MB/s'
 };
 
 function clampInt(v, min, max, fallback) {
@@ -58,6 +60,8 @@ function normalize(cfg) {
   c.speedDownloadMB = clampInt(c.speedDownloadMB, 1, 500, DEFAULTS.speedDownloadMB);
   c.speedUploadMB = clampInt(c.speedUploadMB, 0, 250, DEFAULTS.speedUploadMB);
   c.speedServer = String(c.speedServer || DEFAULTS.speedServer).replace(/\/+$/, '');
+  c.speedTestSeconds = clampInt(c.speedTestSeconds, 3, 60, DEFAULTS.speedTestSeconds);
+  c.speedUnit = c.speedUnit === 'MB/s' ? 'MB/s' : 'Mbps';
   return c;
 }
 

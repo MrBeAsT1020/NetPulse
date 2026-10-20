@@ -196,6 +196,11 @@ function applyConfigToForm(cfg) {
   setVal('f-historySeconds', cfg.historySeconds);
   $('f-resolveHosts').checked = !!cfg.resolveHosts;
   $('f-soundAlerts').checked = !!cfg.soundAlerts;
+  setVal('f-speedTestSeconds', cfg.speedTestSeconds);
+  setVal('f-speedUploadMB', cfg.speedUploadMB);
+  setVal('f-speedServer', cfg.speedServer);
+  $('f-speedUnit').checked = cfg.speedUnit === 'MB/s';
+  updateSpeedUnitLabels();
 }
 
 function setVal(id, v) {
@@ -222,6 +227,10 @@ function readForm() {
     lossPct: num('f-lossPct', base.lossPct ?? 25),
     soundAlerts: $('f-soundAlerts').checked,
     historySeconds: num('f-historySeconds', base.historySeconds ?? 120),
+    speedTestSeconds: num('f-speedTestSeconds', base.speedTestSeconds ?? 10),
+    speedUploadMB: num('f-speedUploadMB', base.speedUploadMB ?? 10),
+    speedServer: $('f-speedServer').value.trim() || base.speedServer,
+    speedUnit: $('f-speedUnit').checked ? 'MB/s' : 'Mbps',
   };
 }
 
@@ -231,6 +240,7 @@ async function applySettings() {
   const res = await netpulse.update(cfg);
   state.config = res.config;
   computeCap();
+  updateSpeedUnitLabels();
   closeSettings();
 }
 
@@ -339,10 +349,28 @@ function colorReadoutLoss(el, lossPct) {
 let speedMax = 0;
 
 function setSpeedNum(id, v) {
-  $(id).textContent = v == null ? '—' : v;
+  if (v == null) {
+    $(id).textContent = '—';
+    return;
+  }
+  const unit = state.config?.speedUnit || 'Mbps';
+  let val = v;
+  if (unit === 'MB/s') {
+    val = v / 8;
+  }
+  $(id).textContent = val.toFixed(2);
 }
 function setBar(id, frac) {
   $(id).style.width = Math.max(0, Math.min(1, frac)) * 100 + '%';
+}
+
+// Reflect the configured speed unit on the download/upload labels.
+function updateSpeedUnitLabels() {
+  const u = (state.config && state.config.speedUnit) || 'Mbps';
+  const dl = $('spUnitDl');
+  const ul = $('spUnitUl');
+  if (dl) dl.textContent = u + ' ↓';
+  if (ul) ul.textContent = u + ' ↑';
 }
 
 async function runSpeedTest() {
@@ -392,7 +420,18 @@ function onSpeedDone(p) {
   $('spPing').textContent = r.pingMs != null ? r.pingMs + ' ms' : '—';
   $('spJitter').textContent = r.jitterMs != null ? r.jitterMs + ' ms' : '—';
 
-  let msg = `Speed ↓ ${r.downloadMbps ?? '—'} / ↑ ${r.uploadMbps ?? '—'} Mbps`;
+  const unit = state.config?.speedUnit || 'Mbps';
+  let dlVal = r.downloadMbps;
+  let ulVal = r.uploadMbps;
+  if (unit === 'MB/s') {
+    dlVal = (dlVal / 8).toFixed(2);
+    ulVal = (ulVal / 8).toFixed(2);
+  } else {
+    dlVal = dlVal?.toFixed(2) ?? '—';
+    ulVal = ulVal?.toFixed(2) ?? '—';
+  }
+
+  let msg = `Speed ↓ ${dlVal} / ↑ ${ulVal} ${unit}`;
   if (r.pingMs != null) msg += ` · ${r.pingMs} ms ping`;
   if (r.cancelled) {
     $('spNote').textContent = 'cancelled';
