@@ -1,0 +1,48 @@
+{
+  "name": "netpulse",
+  "version": "0.1.0",
+  "description": "NetPulse - a PingPlotter-style network latency & traceroute monitor (Windows desktop)",
+  "main": "main.js",
+  "author": "DoujinMaster401524",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.mrbea.netpulse",
+    "productName": "NetPulse",
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "config-store.js",
+      "logger.js",
+      "probe/**/*",
+      "renderer/**/*",
+      "package.json"
+    ],
+    "win": {
+      "publisherName": "DoujinMaster401524",
+      "target": [
+        { "target": "nsis", "arch": "x64" }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false,
+      "shortcutName": "NetPulse"
+    }
+  }
+}

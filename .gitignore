@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Build output (installers, unpacked app, blockmaps)
+dist/
+
+# Logs & scratch
+*.log
+np-console.log
+np-app.log
+np-err.log
+
+# OS cruft
+Thumbs.db
+.DS_Store

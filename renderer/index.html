@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;" />
+  <title>NetPulse</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="logo" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M2 12h4l2-5 3 10 3-8 2 4h6"
+              stroke="url(#pulseGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        <defs>
+          <linearGradient id="pulseGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop stop-color="#4ea1ff" />
+            <stop offset="1" stop-color="#3fb950" />
+          </linearGradient>
+        </defs>
+      </svg>
+      NetPulse
+    </div>
+
+    <label class="target">
+      <span class="lbl">Target</span>
+      <input id="target" type="text" spellcheck="false" placeholder="host or IP, e.g. 8.8.8.8" />
+    </label>
+
+    <div class="controls">
+      <button id="startBtn" class="btn primary">Start</button>
+      <button id="stopBtn" class="btn">Stop</button>
+      <span id="statusPill" class="pill idle">Idle</span>
+    </div>
+
+    <div class="topbar-right">
+      <span id="version" class="version"></span>
+      <button id="settingsBtn" class="btn ghost">⚙ Settings</button>
+    </div>
+  </header>
+
+  <div id="alertBanner" class="alert-banner" hidden>
+    <span class="alert-kind"></span>
+    <span class="alert-msg"></span>
+  </div>
+
+  <main>
+    <section class="panel graph-panel">
+      <div class="panel-head">
+        <h2>Latency</h2>
+        <div class="readout">
+          <div class="ro"><span class="ro-lbl">avg</span><span id="ro-avg" class="ro-val mono">—</span></div>
+          <div class="ro"><span class="ro-lbl">min</span><span id="ro-min" class="ro-val mono">—</span></div>
+          <div class="ro"><span class="ro-lbl">max</span><span id="ro-max" class="ro-val mono">—</span></div>
+          <div class="ro"><span class="ro-lbl">loss</span><span id="ro-loss" class="ro-val mono">—</span></div>
+          <div class="ro"><span class="ro-lbl">pkts</span><span id="ro-count" class="ro-val mono">0</span></div>
+        </div>
+      </div>
+
+      <div class="graph-wrap"><canvas id="graph"></canvas></div>
+
+      <div class="graph-foot">
+        <div class="legend">
+          <span class="lg"><i class="sw ok"></i>ok</span>
+          <span class="lg"><i class="sw warn"></i>slow</span>
+          <span class="lg"><i class="sw crit"></i>high</span>
+          <span class="lg"><i class="sw lost"></i>lost</span>
+        </div>
+        <div class="foot-actions">
+          <span id="pingNowResult" class="probe-result"></span>
+          <button id="pingNowBtn" class="btn small">Ping now</button>
+          <button id="traceNowBtn" class="btn small">Trace now</button>
+          <span id="traceStatus" class="muted"></span>
+        </div>
+      </div>
+    </section>
+
+    <div class="panel-row">
+    <section class="panel speed-panel">
+      <div class="panel-head">
+        <h2>Speed Test</h2>
+        <div class="log-actions">
+          <button id="speedRun" class="btn small primary">Run</button>
+          <button id="speedStop" class="btn small" disabled>Stop</button>
+        </div>
+      </div>
+      <div class="speed-grid">
+        <div class="speed-line">
+          <span class="speed-num" id="spDl">—</span>
+          <span class="speed-unit">Mbps ↓</span>
+          <div class="speed-bar"><div id="spDlBar" class="bar-fill"></div></div>
+        </div>
+        <div class="speed-line">
+          <span class="speed-num" id="spUl">—</span>
+          <span class="speed-unit">Mbps ↑</span>
+          <div class="speed-bar"><div id="spUlBar" class="bar-fill up"></div></div>
+        </div>
+      </div>
+      <div class="speed-meta">
+        <span><b id="spPing">—</b> ping</span>
+        <span><b id="spJitter">—</b> jitter</span>
+        <span id="spNote" class="muted"></span>
+      </div>
+    </section>
+
+    <section class="panel rel-panel">
+      <div class="panel-head">
+        <h2>Reliability</h2>
+        <div class="log-actions">
+          <button id="rel30" class="btn small">30 min</button>
+          <button id="rel60" class="btn small">1 hour</button>
+          <button id="relStop" class="btn small ghost" disabled>Stop</button>
+        </div>
+      </div>
+      <div id="relBar" class="rel-progress" hidden><div id="relBarFill"></div></div>
+      <div id="relStatus" class="rel-status">
+        Ready. A run pings the target continuously and reports availability, loss, latency percentiles &amp; jitter.
+      </div>
+      <div id="relReport" class="rel-report" hidden></div>
+    </section>
+  </div>
+
+  <section class="panel hops-panel">
+      <div class="panel-head">
+        <h2>Traceroute</h2>
+        <span id="hopsUpdated" class="muted"></span>
+      </div>
+      <div id="hops" class="hops"></div>
+    </section>
+
+    <section class="panel log-panel">
+      <div class="panel-head">
+        <h2>Events &amp; Log</h2>
+        <div class="log-actions">
+          <button id="exportPing" class="btn small">Export CSV</button>
+          <button id="exportHops" class="btn small">Export trace</button>
+          <button id="revealLogs" class="btn small ghost">Open folder</button>
+        </div>
+      </div>
+      <div id="errorLine" class="error-line"></div>
+      <ul id="alertFeed" class="feed"></ul>
+    </section>
+  </main>
+
+  <div id="settingsDrawer" class="drawer" hidden>
+    <div class="drawer-body">
+      <h3>Settings</h3>
+      <div class="grid">
+        <label>Ping interval (ms)
+          <input id="f-pingInterval" type="number" min="500" step="500" /></label>
+        <label>Ping timeout (ms)
+          <input id="f-pingTimeout" type="number" min="200" step="100" /></label>
+
+        <label>Traceroute every (s, 0 = off)
+          <input id="f-traceInterval" type="number" min="0" step="5" /></label>
+        <label>Max hops
+          <input id="f-traceMaxHops" type="number" min="1" max="30" /></label>
+
+        <label>Warn threshold (ms)
+          <input id="f-warnMs" type="number" min="1" /></label>
+        <label>Critical threshold (ms)
+          <input id="f-critMs" type="number" min="1" /></label>
+
+        <label>Loss alert (%, last ~10 s)
+          <input id="f-lossPct" type="number" min="1" max="100" /></label>
+        <label>History window (s)
+          <input id="f-historySeconds" type="number" min="15" step="15" /></label>
+
+        <label class="check"><input id="f-resolveHosts" type="checkbox" /> Resolve hostnames (slower trace)</label>
+        <label class="check"><input id="f-soundAlerts" type="checkbox" /> Sound alerts</label>
+      </div>
+      <p class="hint">Changing the target or intervals applies immediately. Logs rotate when the target changes.</p>
+      <div class="drawer-actions">
+        <button id="applySettings" class="btn primary">Apply</button>
+        <button id="closeSettings" class="btn ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="graph.js"></script>
+  <script src="alerts.js"></script>
+  <script src="hops.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
